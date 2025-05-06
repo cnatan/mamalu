@@ -110,11 +110,29 @@
         /* Estilizar o modal de confirmação */
         #confirmation-modal {
             background-color: rgba(255, 223, 186, 0.8); /* Fundo bege translúcido */
+            z-index: 1000; /* Garante que o modal fique acima de outros elementos */
+            display: none; /* Modal escondido por padrão */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            align-items: center;
+            justify-content: center;
         }
+
+        #confirmation-modal.active {
+            display: flex; /* Exibe o modal quando ativo */
+        }
+
         #confirmation-modal div {
             background-color: #fffaf0; /* Bege claro */
             border: 2px solid #ffd1dc; /* Rosa pastel */
             border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            max-width: 300px;
+            width: 100%;
         }
 
         /* Estilizar o histórico */
@@ -244,8 +262,8 @@
     <h1>🍼Mamalu</h1>
 
     <!-- Modal de Confirmação -->
-    <div id="confirmation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
-        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 300px; width: 100%;">
+    <div id="confirmation-modal">
+        <div>
             <p>Tem certeza de que deseja resetar o cronômetro?</p>
             <button id="confirm-reset" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Sim</button>
             <button id="cancel-reset" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Não</button>
@@ -366,6 +384,9 @@
             const side = timers[timerId].side;
             timerToStart.side = side;
 
+            // Desabilita o toggle
+            document.getElementById(`${timerId}-side-toggle`).disabled = true;
+
             clearInterval(timerToStart.intervalId);
             timerToStart.intervalId = setInterval(() => tick(timerId), 100);
             updateTimerDisplay(timerId);
@@ -399,6 +420,9 @@
             timer.startTime = null;
             timer.sessionStartTime = null;
             updateTimerDisplay(timerId);
+
+            // Reabilita o toggle
+            document.getElementById(`${timerId}-side-toggle`).disabled = false;
         }
     }
 
@@ -419,7 +443,11 @@
 
         // Atualiza os displays para 0
         timer.displayElement.textContent = formatTime(0);
-         console.log(`${timerId} resetado.`);
+
+        // Reabilita o toggle
+        document.getElementById(`${timerId}-side-toggle`).disabled = false;
+
+        console.log(`${timerId} resetado.`);
     }
 
     function printHistory() {
@@ -487,13 +515,24 @@
 
     function showConfirmationModal(timerId) {
         timerToReset = timerId; // Define o cronômetro a ser resetado
-        document.getElementById('confirmation-modal').style.display = 'flex'; // Exibe o modal
+        const modal = document.getElementById('confirmation-modal');
+        modal.classList.add('active'); // Exibe o modal
     }
 
     function hideConfirmationModal() {
         timerToReset = null; // Reseta a variável
-        document.getElementById('confirmation-modal').style.display = 'none'; // Esconde o modal
+        const modal = document.getElementById('confirmation-modal');
+        modal.classList.remove('active'); // Esconde o modal
     }
+
+    document.getElementById('confirm-reset').addEventListener('click', () => {
+        if (timerToReset) {
+            resetTimer(timerToReset); // Reseta o cronômetro
+        }
+        hideConfirmationModal(); // Esconde o modal
+    });
+
+    document.getElementById('cancel-reset').addEventListener('click', hideConfirmationModal);
 
     function updateSide(timerId) {
         const toggle = document.getElementById(`${timerId}-side-toggle`);
