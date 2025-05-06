@@ -307,6 +307,7 @@
     <div class="history-section">
         <button onclick="printHistory()">Imprimir Histórico</button>
         <button onclick="copyHistory()">Copiar</button> <!-- Botão de cópia -->
+        <button onclick="clearHistoryLog()">Limpar</button> <!-- Botão de limpar -->
         <textarea id="history-log" readonly placeholder="O histórico aparecerá aqui..."></textarea>
     </div>
 
@@ -511,6 +512,12 @@
         historyTextArea.select();
         document.execCommand('copy');
         alert('Histórico copiado para a área de transferência!');
+    }
+
+    function clearHistoryLog() {
+        const historyTextArea = document.getElementById('history-log');
+        historyTextArea.value = ''; // Limpa apenas o conteúdo da caixa de texto
+        console.log("Histórico visual limpo.");
     }
 
     function showConfirmationModal(timerId) {
