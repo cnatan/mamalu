@@ -27,6 +27,10 @@ Criar um aplicativo web simples que permita aos usuários monitorar o tempo de m
         ```
     1. Deve haver um botão "Copiar" que copie o conteúdo da caixa de texto para a área de transferência.
 
+### Estilo
+
+Cores suaves (pastel), fontes arredondadas e ícones que remetam ao universo infantil.
+
 ### Artefato
 
 Um único arquivo HTML com JavaScript e CSS embutido.
