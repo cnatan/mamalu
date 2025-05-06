@@ -34,8 +34,6 @@ Criar um aplicativo web simples que permita aos usuários monitorar o tempo de m
 
 ### Estilo
 
+O layout deve ser responsivo, adaptando-se a diferentes tamanhos de tela, especialmente dispositivos móveis.
+O design deve ser simples e intuitivo, com botões grandes e fáceis de clicar.
 Cores suaves (pastel), fontes arredondadas e ícones que remetam ao universo infantil.
-
-### Artefato
-
-Um único arquivo HTML com JavaScript e CSS embutido.
