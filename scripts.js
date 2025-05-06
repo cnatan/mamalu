@@ -74,6 +74,48 @@ function startTimer(timerId) {
     }
 }
 
+// Save timers state to localStorage
+function saveTimersState() {
+    const timersState = Object.keys(timers).reduce((state, timerId) => {
+        const timer = timers[timerId];
+        state[timerId] = {
+            totalAccumulatedTime: timer.totalAccumulatedTime,
+            elapsedTime: timer.elapsedTime,
+            side: timer.side
+        };
+        return state;
+    }, {});
+    localStorage.setItem('timersState', JSON.stringify(timersState));
+}
+
+// Load timers state from localStorage
+function loadTimersState() {
+    const storedTimersState = localStorage.getItem('timersState');
+    if (storedTimersState) {
+        const timersState = JSON.parse(storedTimersState);
+        Object.keys(timersState).forEach(timerId => {
+            const state = timersState[timerId];
+            timers[timerId].totalAccumulatedTime = state.totalAccumulatedTime || 0;
+            timers[timerId].elapsedTime = state.elapsedTime || 0;
+            timers[timerId].side = state.side || 'esquerdo';
+            updateTimerDisplay(timerId);
+        });
+    }
+}
+
+// Load history from localStorage
+function loadHistory() {
+    const storedHistory = localStorage.getItem('historyLog');
+    if (storedHistory) {
+        historyLog = JSON.parse(storedHistory);
+    }
+}
+
+// Save history to localStorage
+function saveHistory() {
+    localStorage.setItem('historyLog', JSON.stringify(historyLog));
+}
+
 function pauseTimer(timerId) {
     const timer = timers[timerId];
 
@@ -94,6 +136,8 @@ function pauseTimer(timerId) {
                 start: timer.sessionStartTime,
                 end: sessionEndTime
             });
+            saveHistory(); // Save history to localStorage
+            saveTimersState(); // Save timers state to localStorage
             console.log(`${timerId} pausado. Lado: ${timer.side}. Sessão: ${formatTime(sessionEndTime - timer.sessionStartTime)}.`);
         }
 
@@ -112,6 +156,7 @@ function resetTimer(timerId) {
 
     // Remover registros do histórico relacionados ao cronômetro resetado
     historyLog = historyLog.filter(entry => entry.type.toLowerCase() !== timerId);
+    saveHistory(); // Save updated history to localStorage
 
     timer.totalAccumulatedTime = 0;
     timer.elapsedTime = 0;
@@ -124,6 +169,8 @@ function resetTimer(timerId) {
     timer.displayElement.textContent = formatTime(0);
 
     document.getElementById(`${timerId}-side-toggle`).disabled = false;
+
+    saveTimersState(); // Save updated timers state to localStorage
 
     console.log(`${timerId} resetado e registros do histórico removidos.`);
 }
@@ -226,6 +273,8 @@ function updateSide(timerId) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadHistory(); // Load history from localStorage
+    loadTimersState(); // Load timers state from localStorage
     updateTimerDisplay('mamada');
     updateTimerDisplay('chupetada');
     console.log("Página carregada e cronômetros inicializados.");
