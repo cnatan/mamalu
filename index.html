@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mamalu.app</title>
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/825/825947.png" type="image/png">
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box; /* Inclui padding no cálculo da largura/altura */
+        }
+
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px; /* Limita a largura máxima */
+            box-sizing: border-box;
+        }
+
+        .timer-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        h2 {
+            font-size: 2em; /* Tamanho de fonte maior */
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .time-display {
+            font-size: 3em; /* Tamanho de fonte bem grande */
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #007bff; /* Azul para destaque */
+            display: block; /* Garante que ocupe a linha toda */
+        }
+
+        .controls button {
+            padding: 12px 25px;
+            margin: 5px;
+            font-size: 1.1em; /* Tamanho de fonte maior para botões */
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .play-button {
+            background-color: #28a745; /* Verde */
+            color: white;
+        }
+        .play-button:hover {
+            background-color: #218838;
+        }
+
+        .pause-button {
+            background-color: #ffc107; /* Amarelo */
+            color: black;
+        }
+        .pause-button:hover {
+            background-color: #e0a800;
+        }
+
+        .reset-button {
+            background-color: #dc3545; /* Vermelho */
+            color: white;
+        }
+        .reset-button:hover {
+            background-color: #c82333;
+        }
+
+        .history-section {
+            margin-top: 20px;
+            width: 100%; /* Ocupa a largura do container */
+            box-sizing: border-box;
+        }
+
+        .history-section button {
+             padding: 12px 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #17a2b8; /* Azul info */
+            color: white;
+            margin-bottom: 15px;
+            transition: background-color 0.3s ease;
+        }
+        .history-section button:hover {
+            background-color: #138496;
+        }
+
+        .history-section textarea {
+            width: 100%; /* Ocupa a largura disponível */
+            height: 150px;
+            margin-top: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box; /* Inclui padding e borda no cálculo */
+        }
+
+        /* Media Queries para Responsividade */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            h2 {
+                font-size: 1.8em;
+            }
+            .time-display {
+                font-size: 2.5em;
+            }
+            .controls button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+             .history-section button {
+                padding: 10px 20px;
+                font-size: 1em;
+            }
+        }
+         @media (max-width: 400px) {
+             h2 {
+                font-size: 1.5em;
+            }
+            .time-display {
+                font-size: 2em;
+            }
+             .controls button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+              .history-section button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
+             .history-section textarea {
+                height: 120px;
+             }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Mamalu</h1>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
+        <div style="background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 300px; width: 100%;">
+            <p>Tem certeza de que deseja resetar o cronômetro?</p>
+            <button id="confirm-reset" style="background-color: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">Sim</button>
+            <button id="cancel-reset" style="background-color: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-left: 10px;">Não</button>
+        </div>
+    </div>
+
+    <div class="timer-section">
+        <h2>Mamada</h2>
+        <span id="mamada-time" class="time-display">00:00:00.000</span>
+        <div class="controls">
+            <button class="play-button" onclick="startTimer('mamada')">Play</button>
+            <button class="pause-button" onclick="pauseTimer('mamada')">Pause</button>
+            <button class="reset-button" onclick="showConfirmationModal('mamada')">Reset</button>
+        </div>
+    </div>
+
+    <div class="timer-section">
+        <h2>Chupetada</h2>
+        <span id="chupetada-time" class="time-display">00:00:00.000</span>
+        <div class="controls">
+            <button class="play-button" onclick="startTimer('chupetada')">Play</button>
+            <button class="pause-button" onclick="pauseTimer('chupetada')">Pause</button>
+            <button class="reset-button" onclick="showConfirmationModal('chupetada')">Reset</button>
+        </div>
+    </div>
+
+    <div class="history-section">
+        <button onclick="printHistory()">Imprimir Histórico</button>
+        <button onclick="copyHistory()">Copiar</button> <!-- Botão de cópia -->
+        <textarea id="history-log" readonly placeholder="O histórico aparecerá aqui..."></textarea>
+    </div>
+
+</div>
+
+<script>
+    const timers = {
+        mamada: {
+            id: 'mamada',
+            displayElement: document.getElementById('mamada-time'),
+            intervalId: null,
+            startTime: null, // Momento em que o timer foi iniciado na sessão atual
+            elapsedTime: 0, // Tempo decorrido na sessão atual (ms)
+            totalAccumulatedTime: 0, // Tempo total acumulado (ms)
+            isRunning: false,
+            sessionStartTime: null // Timestamp de início da sessão para o histórico
+        },
+        chupetada: {
+            id: 'chupetada',
+            displayElement: document.getElementById('chupetada-time'),
+            intervalId: null,
+            startTime: null,
+            elapsedTime: 0,
+            totalAccumulatedTime: 0,
+            isRunning: false,
+            sessionStartTime: null
+        }
+    };
+
+    let historyLog = []; // Array para armazenar os registros { type, start, end }
+    let timerToReset = null; // Variável para armazenar o cronômetro a ser resetado
+
+    function formatTime(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const ms = Math.floor((milliseconds % 1000) / 100); // Apenas a primeira casa decimal
+
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}.${ms}`;
+    }
+
+    function updateTimerDisplay(timerId) {
+        const timer = timers[timerId];
+        const currentTime = timer.totalAccumulatedTime + timer.elapsedTime;
+        timer.displayElement.textContent = formatTime(currentTime);
+    }
+
+    function tick(timerId) {
+        const timer = timers[timerId];
+        const now = Date.now();
+        timer.elapsedTime = now - timer.startTime;
+        updateTimerDisplay(timerId);
+    }
+
+    function startTimer(timerId) {
+        const timerToStart = timers[timerId];
+        const otherTimerId = timerId === 'mamada' ? 'chupetada' : 'mamada';
+        const otherTimer = timers[otherTimerId];
+
+        // Pausa o outro timer se estiver rodando
+        if (otherTimer.isRunning) {
+            pauseTimer(otherTimerId);
+        }
+
+        // Só inicia se não estiver rodando
+        if (!timerToStart.isRunning) {
+            timerToStart.isRunning = true;
+            timerToStart.startTime = Date.now(); // Define o início da contagem atual
+            timerToStart.sessionStartTime = timerToStart.startTime; // Guarda o início absoluto da sessão para o log
+            // Limpa qualquer intervalo anterior por segurança (ex: após reset rápido)
+            clearInterval(timerToStart.intervalId);
+            timerToStart.intervalId = setInterval(() => tick(timerId), 100); // Atualiza a cada 100ms
+             // Atualiza display imediatamente para não mostrar 00:00:00 se já havia tempo acumulado
+            updateTimerDisplay(timerId);
+             console.log(`${timerId} iniciado às ${new Date(timerToStart.sessionStartTime).toLocaleString()}`);
+        }
+    }
+
+    function pauseTimer(timerId) {
+        const timer = timers[timerId];
+
+        if (timer.isRunning) {
+            timer.isRunning = false;
+            clearInterval(timer.intervalId);
+            timer.intervalId = null;
+
+            // Acumula o tempo da sessão atual APENAS quando pausa
+            const sessionEndTime = Date.now();
+            timer.elapsedTime = sessionEndTime - timer.startTime; // Calcula o tempo exato da sessão
+            timer.totalAccumulatedTime += timer.elapsedTime;
+            timer.elapsedTime = 0; // Reseta o tempo da sessão atual
+
+            // Adiciona ao histórico
+            if (timer.sessionStartTime) { // Garante que houve um início de sessão
+                 historyLog.push({
+                    type: timer.id.charAt(0).toUpperCase() + timer.id.slice(1), // Capitaliza (Mamada/Chupetada)
+                    start: timer.sessionStartTime,
+                    end: sessionEndTime
+                });
+                console.log(`${timerId} pausado. Sessão: ${formatTime(sessionEndTime - timer.sessionStartTime)}. Total: ${formatTime(timer.totalAccumulatedTime)}`);
+            }
+
+            timer.startTime = null;
+            timer.sessionStartTime = null; // Limpa o início da sessão
+            updateTimerDisplay(timerId); // Atualiza o display com o tempo total acumulado
+        }
+    }
+
+    function resetTimer(timerId) {
+        const timer = timers[timerId];
+
+        // Pausa primeiro para garantir que o último intervalo seja logado e o tempo acumulado
+        pauseTimer(timerId);
+
+        // Reseta os valores
+        timer.totalAccumulatedTime = 0;
+        timer.elapsedTime = 0; // Já deve ser 0 por causa do pause, mas por segurança
+        timer.isRunning = false; // Já deve ser false
+        timer.startTime = null;
+        timer.sessionStartTime = null;
+        clearInterval(timer.intervalId); // Garante que não há intervalo rodando
+        timer.intervalId = null;
+
+        // Atualiza os displays para 0
+        timer.displayElement.textContent = formatTime(0);
+         console.log(`${timerId} resetado.`);
+    }
+
+    function printHistory() {
+        const historyTextArea = document.getElementById('history-log');
+        historyTextArea.value = ''; // Limpa a área de texto
+
+        if (historyLog.length === 0) {
+            historyTextArea.value = 'Nenhum registro ainda.';
+            return;
+        }
+
+        // Ordena os registros pelo timestamp de início
+        historyLog.sort((a, b) => a.start - b.start);
+
+        let historyString = '';
+        let totalMamada = 0;
+        let totalChupetada = 0;
+
+        historyLog.forEach(entry => {
+            const startTimeStr = new Date(entry.start).toLocaleString('pt-BR');
+            const endTimeStr = new Date(entry.end).toLocaleString('pt-BR');
+            const durationMs = entry.end - entry.start;
+            const durationStr = formatTime(durationMs);
+
+            historyString += `${entry.type} iniciou às ${startTimeStr} encerrou às ${endTimeStr} (Duração: ${durationStr})\n`;
+
+            if (entry.type === 'Mamada') {
+                totalMamada += durationMs;
+            } else if (entry.type === 'Chupetada') {
+                totalChupetada += durationMs;
+            }
+        });
+
+        historyString += `\nTotal de mamadas: ${formatTime(totalMamada)}\nTotal de chupetadas: ${formatTime(totalChupetada)}`;
+        historyTextArea.value = historyString.trim();
+        console.log("Histórico impresso.");
+    }
+
+    function copyHistory() {
+        const historyTextArea = document.getElementById('history-log');
+        historyTextArea.select();
+        document.execCommand('copy');
+        alert('Histórico copiado para a área de transferência!');
+    }
+
+    function showConfirmationModal(timerId) {
+        timerToReset = timerId; // Define o cronômetro a ser resetado
+        document.getElementById('confirmation-modal').style.display = 'flex'; // Exibe o modal
+    }
+
+    function hideConfirmationModal() {
+        timerToReset = null; // Reseta a variável
+        document.getElementById('confirmation-modal').style.display = 'none'; // Esconde o modal
+    }
+
+    document.getElementById('confirm-reset').addEventListener('click', () => {
+        if (timerToReset) {
+            resetTimer(timerToReset); // Reseta o cronômetro
+        }
+        hideConfirmationModal(); // Esconde o modal
+    });
+
+    document.getElementById('cancel-reset').addEventListener('click', hideConfirmationModal);
+
+    // Inicializa os displays
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTimerDisplay('mamada');
+        updateTimerDisplay('chupetada');
+        console.log("Página carregada e cronômetros inicializados.");
+    });
+
+</script>
+
+</body>
+</html>
