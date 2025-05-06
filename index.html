@@ -178,6 +178,64 @@
                 height: 120px;
              }
         }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 25px;
+            margin-right: 10px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 25px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 19px;
+            width: 19px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #87ceeb; /* Azul pastel */
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(25px);
+        }
+
+        #mamada-side-label, #chupetada-side-label {
+            font-size: 1.2em;
+            color: #007bff; /* Azul para destaque */
+        }
     </style>
 </head>
 <body>
@@ -196,6 +254,13 @@
 
     <div class="timer-section">
         <h2>Mamada</h2>
+        <div class="toggle-container">
+            <label class="toggle">
+                <input type="checkbox" id="mamada-side-toggle" onchange="updateSide('mamada')">
+                <span class="slider"></span>
+            </label>
+            <span id="mamada-side-label">Esquerdo</span>
+        </div>
         <span id="mamada-time" class="time-display">00:00:00.000</span>
         <div class="controls">
             <button class="play-button" onclick="startTimer('mamada')">Play</button>
@@ -206,6 +271,13 @@
 
     <div class="timer-section">
         <h2>Chupetada</h2>
+        <div class="toggle-container">
+            <label class="toggle">
+                <input type="checkbox" id="chupetada-side-toggle" onchange="updateSide('chupetada')">
+                <span class="slider"></span>
+            </label>
+            <span id="chupetada-side-label">Esquerdo</span>
+        </div>
         <span id="chupetada-time" class="time-display">00:00:00.000</span>
         <div class="controls">
             <button class="play-button" onclick="startTimer('chupetada')">Play</button>
@@ -232,7 +304,8 @@
             elapsedTime: 0, // Tempo decorrido na sessão atual (ms)
             totalAccumulatedTime: 0, // Tempo total acumulado (ms)
             isRunning: false,
-            sessionStartTime: null // Timestamp de início da sessão para o histórico
+            sessionStartTime: null, // Timestamp de início da sessão para o histórico
+            side: 'esquerdo' // Lado padrão
         },
         chupetada: {
             id: 'chupetada',
@@ -242,11 +315,12 @@
             elapsedTime: 0,
             totalAccumulatedTime: 0,
             isRunning: false,
-            sessionStartTime: null
+            sessionStartTime: null,
+            side: 'esquerdo' // Lado padrão
         }
     };
 
-    let historyLog = []; // Array para armazenar os registros { type, start, end }
+    let historyLog = []; // Array para armazenar os registros { type, start, end, side }
     let timerToReset = null; // Variável para armazenar o cronômetro a ser resetado
 
     function formatTime(milliseconds) {
@@ -285,14 +359,17 @@
         // Só inicia se não estiver rodando
         if (!timerToStart.isRunning) {
             timerToStart.isRunning = true;
-            timerToStart.startTime = Date.now(); // Define o início da contagem atual
-            timerToStart.sessionStartTime = timerToStart.startTime; // Guarda o início absoluto da sessão para o log
-            // Limpa qualquer intervalo anterior por segurança (ex: após reset rápido)
+            timerToStart.startTime = Date.now();
+            timerToStart.sessionStartTime = timerToStart.startTime;
+
+            // Captura o lado selecionado
+            const side = timers[timerId].side;
+            timerToStart.side = side;
+
             clearInterval(timerToStart.intervalId);
-            timerToStart.intervalId = setInterval(() => tick(timerId), 100); // Atualiza a cada 100ms
-             // Atualiza display imediatamente para não mostrar 00:00:00 se já havia tempo acumulado
+            timerToStart.intervalId = setInterval(() => tick(timerId), 100);
             updateTimerDisplay(timerId);
-             console.log(`${timerId} iniciado às ${new Date(timerToStart.sessionStartTime).toLocaleString()}`);
+            console.log(`${timerId} iniciado no lado ${side} às ${new Date(timerToStart.sessionStartTime).toLocaleString()}`);
         }
     }
 
@@ -304,25 +381,24 @@
             clearInterval(timer.intervalId);
             timer.intervalId = null;
 
-            // Acumula o tempo da sessão atual APENAS quando pausa
             const sessionEndTime = Date.now();
-            timer.elapsedTime = sessionEndTime - timer.startTime; // Calcula o tempo exato da sessão
+            timer.elapsedTime = sessionEndTime - timer.startTime;
             timer.totalAccumulatedTime += timer.elapsedTime;
-            timer.elapsedTime = 0; // Reseta o tempo da sessão atual
+            timer.elapsedTime = 0;
 
-            // Adiciona ao histórico
-            if (timer.sessionStartTime) { // Garante que houve um início de sessão
-                 historyLog.push({
-                    type: timer.id.charAt(0).toUpperCase() + timer.id.slice(1), // Capitaliza (Mamada/Chupetada)
+            if (timer.sessionStartTime) {
+                historyLog.push({
+                    type: timer.id.charAt(0).toUpperCase() + timer.id.slice(1),
+                    side: timer.side,
                     start: timer.sessionStartTime,
                     end: sessionEndTime
                 });
-                console.log(`${timerId} pausado. Sessão: ${formatTime(sessionEndTime - timer.sessionStartTime)}. Total: ${formatTime(timer.totalAccumulatedTime)}`);
+                console.log(`${timerId} pausado. Lado: ${timer.side}. Sessão: ${formatTime(sessionEndTime - timer.sessionStartTime)}.`);
             }
 
             timer.startTime = null;
-            timer.sessionStartTime = null; // Limpa o início da sessão
-            updateTimerDisplay(timerId); // Atualiza o display com o tempo total acumulado
+            timer.sessionStartTime = null;
+            updateTimerDisplay(timerId);
         }
     }
 
@@ -360,7 +436,11 @@
 
         let historyString = '';
         let totalMamada = 0;
+        let totalMamadaEsq = 0;
+        let totalMamadaDir = 0;
         let totalChupetada = 0;
+        let totalChupetadaEsq = 0;
+        let totalChupetadaDir = 0;
 
         historyLog.forEach(entry => {
             const startTimeStr = new Date(entry.start).toLocaleString('pt-BR');
@@ -368,16 +448,32 @@
             const durationMs = entry.end - entry.start;
             const durationStr = formatTime(durationMs);
 
-            historyString += `${entry.type} iniciou às ${startTimeStr} encerrou às ${endTimeStr} (Duração: ${durationStr})\n`;
+            historyString += `${entry.type} (seio ${entry.side}) iniciou às ${startTimeStr} encerrou às ${endTimeStr} (Duração: ${durationStr})\n`;
 
             if (entry.type === 'Mamada') {
                 totalMamada += durationMs;
+                if (entry.side === 'esquerdo') {
+                    totalMamadaEsq += durationMs;
+                } else {
+                    totalMamadaDir += durationMs;
+                }
             } else if (entry.type === 'Chupetada') {
                 totalChupetada += durationMs;
+                if (entry.side === 'esquerdo') {
+                    totalChupetadaEsq += durationMs;
+                } else {
+                    totalChupetadaDir += durationMs;
+                }
             }
         });
 
-        historyString += `\nTotal de mamadas: ${formatTime(totalMamada)}\nTotal de chupetadas: ${formatTime(totalChupetada)}`;
+        historyString += `\nTotal de mamadas: ${formatTime(totalMamada)}\n`;
+        historyString += `Total de mamadas lado esquerdo: ${formatTime(totalMamadaEsq)}\n`;
+        historyString += `Total de mamadas lado direito: ${formatTime(totalMamadaDir)}\n`;
+        historyString += `Total de chupetadas: ${formatTime(totalChupetada)}\n`;
+        historyString += `Total de chupetadas lado esquerdo: ${formatTime(totalChupetadaEsq)}\n`;
+        historyString += `Total de chupetadas lado direito: ${formatTime(totalChupetadaDir)}`;
+
         historyTextArea.value = historyString.trim();
         console.log("Histórico impresso.");
     }
@@ -399,14 +495,13 @@
         document.getElementById('confirmation-modal').style.display = 'none'; // Esconde o modal
     }
 
-    document.getElementById('confirm-reset').addEventListener('click', () => {
-        if (timerToReset) {
-            resetTimer(timerToReset); // Reseta o cronômetro
-        }
-        hideConfirmationModal(); // Esconde o modal
-    });
-
-    document.getElementById('cancel-reset').addEventListener('click', hideConfirmationModal);
+    function updateSide(timerId) {
+        const toggle = document.getElementById(`${timerId}-side-toggle`);
+        const label = document.getElementById(`${timerId}-side-label`);
+        const side = toggle.checked ? 'direito' : 'esquerdo';
+        timers[timerId].side = side;
+        label.textContent = side.charAt(0).toUpperCase() + side.slice(1);
+    }
 
     // Inicializa os displays
     document.addEventListener('DOMContentLoaded', () => {
