@@ -6,28 +6,37 @@
     <title>Mamalu.app</title>
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/825/825947.png" type="image/png">
     <style>
+        /* Alterar o fundo da página para um tom pastel */
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif; /* Fonte mais amigável */
+            background-color: #fef9e7; /* Amarelo claro pastel */
             margin: 0;
             padding: 20px;
             box-sizing: border-box; /* Inclui padding no cálculo da largura/altura */
         }
 
+        /* Estilizar o container com bordas suaves e cores pastel */
         .container {
             text-align: center;
-            background-color: #fff;
+            background-color: #fffaf0; /* Bege claro */
             padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid #ffd1dc; /* Rosa pastel */
+            border-radius: 20px; /* Bordas mais arredondadas */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra mais suave */
             width: 100%;
             max-width: 600px; /* Limita a largura máxima */
             box-sizing: border-box;
+        }
+
+        /* Alterar os títulos para cores suaves */
+        h1, h2 {
+            color: #ff6f91; /* Rosa pastel */
+            font-family: 'Comic Sans MS', 'Arial', sans-serif; /* Fonte amigável */
         }
 
         .timer-section {
@@ -37,10 +46,14 @@
             border-radius: 10px;
         }
 
+        h1 {
+            font-size: 2.5em; /* Tamanho de fonte maior */
+            margin-bottom: 15px;
+        }
+
         h2 {
             font-size: 2em; /* Tamanho de fonte maior */
             margin-bottom: 15px;
-            color: #333;
         }
 
         .time-display {
@@ -51,69 +64,75 @@
             display: block; /* Garante que ocupe a linha toda */
         }
 
-        .controls button {
+        /* Estilizar os botões com cores pastel */
+        .controls button, .history-section button {
             padding: 12px 25px;
             margin: 5px;
             font-size: 1.1em; /* Tamanho de fonte maior para botões */
             cursor: pointer;
-            border: none;
+            border: 2px solid #87ceeb; /* Azul claro */
             border-radius: 5px;
+            background-color: #a2d5f2; /* Azul pastel */
+            color: #fff;
+            font-family: 'Comic Sans MS', 'Arial', sans-serif;
             transition: background-color 0.3s ease;
         }
 
+        .controls button:hover, .history-section button:hover {
+            background-color: #87ceeb; /* Azul mais escuro ao passar o mouse */
+        }
+
+        /* Estilizar os botões de ação com cores temáticas */
         .play-button {
-            background-color: #28a745; /* Verde */
-            color: white;
+            background-color: #b5e7a0; /* Verde pastel */
+            color: #fff;
         }
         .play-button:hover {
-            background-color: #218838;
+            background-color: #98d89e; /* Verde mais escuro */
         }
 
         .pause-button {
-            background-color: #ffc107; /* Amarelo */
-            color: black;
+            background-color: #ffcccb; /* Rosa claro */
+            color: #fff;
         }
         .pause-button:hover {
-            background-color: #e0a800;
+            background-color: #ffb6c1; /* Rosa mais escuro */
         }
 
         .reset-button {
-            background-color: #dc3545; /* Vermelho */
-            color: white;
+            background-color: #f7cac9; /* Rosa pastel */
+            color: #fff;
         }
         .reset-button:hover {
-            background-color: #c82333;
+            background-color: #f4a6a6; /* Rosa mais escuro */
         }
 
+        /* Estilizar o modal de confirmação */
+        #confirmation-modal {
+            background-color: rgba(255, 223, 186, 0.8); /* Fundo bege translúcido */
+        }
+        #confirmation-modal div {
+            background-color: #fffaf0; /* Bege claro */
+            border: 2px solid #ffd1dc; /* Rosa pastel */
+            border-radius: 15px;
+        }
+
+        /* Estilizar o histórico */
         .history-section {
             margin-top: 20px;
             width: 100%; /* Ocupa a largura do container */
             box-sizing: border-box;
         }
 
-        .history-section button {
-             padding: 12px 25px;
-            font-size: 1.1em;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #17a2b8; /* Azul info */
-            color: white;
-            margin-bottom: 15px;
-            transition: background-color 0.3s ease;
-        }
-        .history-section button:hover {
-            background-color: #138496;
-        }
-
         .history-section textarea {
             width: 100%; /* Ocupa a largura disponível */
             height: 150px;
             margin-top: 10px;
-            font-family: 'Courier New', Courier, monospace;
+            font-family: 'Comic Sans MS', 'Courier New', monospace;
             font-size: 0.9em;
             padding: 10px;
-            border: 1px solid #ccc;
+            background-color: #fef9e7; /* Amarelo claro */
+            border: 2px solid #ffd1dc; /* Rosa pastel */
             border-radius: 5px;
             box-sizing: border-box; /* Inclui padding e borda no cálculo */
         }
@@ -124,10 +143,12 @@
                 padding: 20px;
             }
             h2 {
-                font-size: 1.8em;
+                font-size: 1.6em;
+                color: #ff6f91; /* Rosa pastel */
             }
             .time-display {
-                font-size: 2.5em;
+                font-size: 2.2em;
+                color: #ff6f91; /* Rosa pastel */
             }
             .controls button {
                 padding: 10px 20px;
@@ -162,7 +183,7 @@
 <body>
 
 <div class="container">
-    <h1>Mamalu</h1>
+    <h1>🍼Mamalu</h1>
 
     <!-- Modal de Confirmação -->
     <div id="confirmation-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); align-items: center; justify-content: center;">
